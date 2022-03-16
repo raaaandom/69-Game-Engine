@@ -34,8 +34,6 @@ def catchEvents():
             global gameWindowStatus
             gameWindowStatus = False
 
-        #Catch other events here
-
 #GameObjects renderer
 # - Returns False if the passed argument isn't a pygame.Surface
 # - Returns True if everything goes well
@@ -68,7 +66,7 @@ def freeGameObject():
 #Load textures in memory
 def loadTextures():
     textureList[IMG_ID_PLACEHOLDER] = pygame.image.load("assets/placeholder.png")
-
+    
 loadTextures()
 
 #Main loop
