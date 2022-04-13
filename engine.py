@@ -4,8 +4,8 @@ import gameObject as go
 pygame.init()
 
 #Global Constants
-GAMEWINDOW_WIDTH = 1920
-GAMEWINDOW_HEIGHT = 1080
+GAMEWINDOW_WIDTH = 1280
+GAMEWINDOW_HEIGHT = 720
 GAMEWINDOW_SIZE = (GAMEWINDOW_WIDTH,GAMEWINDOW_HEIGHT)
 
 MAX_GAMEOBJECTS = 200
@@ -15,9 +15,15 @@ Z_LAYERS = 10
 
 IMG_ID_PLACEHOLDER = 0
 
+KEY_MOVEMENT_UP = pygame.K_w
+KEY_MOVEMENT_DOWN = pygame.K_s
+KEY_MOVEMENT_LEFT = pygame.K_a
+KEY_MOVEMENT_RIGHT = pygame.K_d
+
 #Global arrays
 textureList = [pygame.Surface((0,0))]*MAX_TEXTURES
 objectList = [go.GameObject()]*MAX_GAMEOBJECTS
+inputArray = []
 
 #Init values of array
 for i in range(MAX_GAMEOBJECTS):
@@ -26,7 +32,7 @@ for i in range(MAX_GAMEOBJECTS):
 #Game window
 gameWindow = pygame.display.set_mode(GAMEWINDOW_SIZE)
 
-#Event catcher
+#Global event catcher
 def catchEvents():
     for e in pygame.event.get():
         
@@ -69,11 +75,46 @@ def loadTextures():
     
 loadTextures()
 
+#Contains the main logic code which gets executed every tick
+def mainLogic():
+    getInput()
+    moveKeyboardMoveables()
+
+#Moves objects which are moved by keyboard
+def moveKeyboardMoveables():
+    for obj in objectList:
+        if obj.movedByKeyboard:
+            
+            if inputArray[KEY_MOVEMENT_UP]:
+                obj.y -= obj.movementSpeedY
+            if inputArray[KEY_MOVEMENT_DOWN]:
+                obj.y += obj.movementSpeedY
+            if inputArray[KEY_MOVEMENT_LEFT]:
+                obj.x -= obj.movementSpeedX
+            if inputArray[KEY_MOVEMENT_RIGHT]:
+                obj.x += obj.movementSpeedX
+
+#Updates the input array
+def getInput():
+    global inputArray
+    inputArray = pygame.key.get_pressed()
+
+
+#Init phase end
+#Custom code here
+
+objectList[freeGameObject()] = go.GameObject(
+    x=10, y=10, on=True,
+    texture=textureList[IMG_ID_PLACEHOLDER],
+    movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1
+    )
+
 #Main loop
 gameWindowStatus = True
 while gameWindowStatus:
     
     catchEvents()
+    mainLogic()
     renderObjects(gameWindow)
 
 #Unload pygame

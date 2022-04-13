@@ -6,7 +6,8 @@ class GameObject():
         self,
         x = 0, y = 0, z = 0,
         on = False, texture = None,
-        overwritable = False
+        overwritable = False,
+        movedByKeyboard = False, movementSpeedX = 0, movementSpeedY = 0,
 
     ) -> None:
         
@@ -25,3 +26,9 @@ class GameObject():
 
         self.overwritable = overwritable # Defines if an object can be overwrited when needed, default = False
                                          # False = Can't be overwrited, True = Can be overwrited
+
+        self.movedByKeyboard = movedByKeyboard # Defines if an object should be moved when movement keys are pressed, default = False
+                                               # False = Not moved by keyboard, True = Moved by keyboard
+
+        self.movementSpeedX = movementSpeedX # Defines the movement speed of objects that get moved by keyboard, default = 0
+        self.movementSpeedY = movementSpeedY # Can be any numerical value (possibly integer)
