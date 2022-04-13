@@ -8,6 +8,7 @@ class GameObject():
         on = False, texture = None,
         overwritable = False,
         movedByKeyboard = False, movementSpeedX = 0, movementSpeedY = 0,
+        causesCollision = False, receivesCollision = False
 
     ) -> None:
         
@@ -32,3 +33,9 @@ class GameObject():
 
         self.movementSpeedX = movementSpeedX # Defines the movement speed of objects that get moved by keyboard, default = 0
         self.movementSpeedY = movementSpeedY # Can be any numerical value (possibly integer)
+
+        self.causesCollision = causesCollision # Defines if the object should be an obstacle to the other objects, default = False
+                                               # False = It isn't an obstacle, True = It is an obstacle
+
+        self.receivesCollision = receivesCollision # Defines if the object should be obstacled by the other objects, default = False
+                                                   # False = It isn't obstacled, True = It is obstacled

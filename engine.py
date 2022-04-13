@@ -84,29 +84,144 @@ def mainLogic():
 def moveKeyboardMoveables():
     for obj in objectList:
         if obj.movedByKeyboard:
-            
+
+            global flag
+
             if inputArray[KEY_MOVEMENT_UP]:
-                obj.y -= obj.movementSpeedY
+
+                if not obj.receivesCollision:
+                    obj.y -= obj.movementSpeedY
+                else:
+                    tempy = obj.y - obj.movementSpeedY
+                    flag = False
+
+                    for obj2 in objectList:
+                        if obj2.causesCollision:
+
+                            if obj == obj2: continue
+
+                            if detectCollision( obj.x, obj.x + obj.texture.get_width(),
+                                                tempy, tempy + obj.texture.get_height(),
+                                                obj2.x, obj2.x + obj2.texture.get_width(),
+                                                obj2.y, obj2.y + obj2.texture.get_height()
+                                              ): flag = True
+
+                    if not flag:
+                        obj.y -= obj.movementSpeedY
+
             if inputArray[KEY_MOVEMENT_DOWN]:
-                obj.y += obj.movementSpeedY
+
+                if not obj.receivesCollision:
+                    obj.y += obj.movementSpeedY
+                else:
+                    tempy = obj.y + obj.movementSpeedY
+                    flag = False
+
+                    for obj2 in objectList:
+                        if obj2.causesCollision:
+
+                            if obj == obj2: continue
+
+                            if detectCollision( obj.x, obj.x + obj.texture.get_width(),
+                                                tempy, tempy + obj.texture.get_height(),
+                                                obj2.x, obj2.x + obj2.texture.get_width(),
+                                                obj2.y, obj2.y + obj2.texture.get_height()
+                                              ): flag = True
+
+                    if not flag:
+                        obj.y += obj.movementSpeedY
+
             if inputArray[KEY_MOVEMENT_LEFT]:
-                obj.x -= obj.movementSpeedX
+
+                if not obj.receivesCollision:
+                    obj.x -= obj.movementSpeedX
+                else:
+                    tempx = obj.x - obj.movementSpeedX
+                    flag = False
+
+                    for obj2 in objectList:
+                        if obj2.causesCollision:
+
+                            if obj == obj2: continue
+
+                            if detectCollision( tempx, tempx + obj.texture.get_width(),
+                                                obj.y, obj.y + obj.texture.get_height(),
+                                                obj2.x, obj2.x + obj2.texture.get_width(),
+                                                obj2.y, obj2.y + obj2.texture.get_height()
+                                              ): flag = True
+
+                    if not flag:
+                        obj.x -= obj.movementSpeedX
+
             if inputArray[KEY_MOVEMENT_RIGHT]:
-                obj.x += obj.movementSpeedX
+
+                if not obj.receivesCollision:
+                    obj.x += obj.movementSpeedX
+                else:
+                    tempx = obj.x + obj.movementSpeedX
+                    flag = False
+
+                    for obj2 in objectList:
+                        if obj2.causesCollision:
+
+                            if obj == obj2: continue
+
+                            if detectCollision( tempx, tempx + obj.texture.get_width(),
+                                                obj.y, obj.y + obj.texture.get_height(),
+                                                obj2.x, obj2.x + obj2.texture.get_width(),
+                                                obj2.y, obj2.y + obj2.texture.get_height()
+                                              ): flag = True
+
+                    if not flag:
+                        obj.x += obj.movementSpeedX
 
 #Updates the input array
 def getInput():
     global inputArray
     inputArray = pygame.key.get_pressed()
 
+def detectCollision(ax1, ax2, ay1, ay2, bx1, bx2, by1, by2):
+
+    if(
+        ((ax1>=bx1 and ax1<=bx2) and (ay1>=by1 and ay1<=by2)) or
+        ((ax2>=bx1 and ax2<=bx2) and (ay1>=by1 and ay1<=by2)) or
+        ((ax1>=bx1 and ax1<=bx2) and (ay2>=by1 and ay2<=by2)) or
+        ((ax2>=bx1 and ax2<=bx2) and (ay2>=by1 and ay2<=by2)) or
+        ((bx1>=ax1 and bx1<=ax2) and (by1>=ay1 and by1<=ay2)) or
+        ((bx2>=ax1 and bx2<=ax2) and (by1>=ay1 and by1<=ay2)) or
+        ((bx1>=ax1 and bx1<=ax2) and (by2>=ay1 and by2<=ay2)) or
+        ((bx2>=ax1 and bx2<=ax2) and (by2>=ay1 and by2<=ay2))
+        ): return True
+    return False
 
 #Init phase end
 #Custom code here
 
 objectList[freeGameObject()] = go.GameObject(
-    x=10, y=10, on=True,
+    x=200, y=500, on=True,
     texture=textureList[IMG_ID_PLACEHOLDER],
-    movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1
+    movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
+    receivesCollision=True, causesCollision=True
+    )
+
+objectList[freeGameObject()] = go.GameObject(
+    x=100, y=300, on=True,
+    texture=textureList[IMG_ID_PLACEHOLDER],
+    movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
+    receivesCollision=True,causesCollision=True
+    )
+
+objectList[freeGameObject()] = go.GameObject(
+    x=400, y=500, on=True,
+    texture=textureList[IMG_ID_PLACEHOLDER],
+    movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
+    receivesCollision=True, causesCollision=True
+    )
+
+objectList[freeGameObject()] = go.GameObject(
+    x=200, y=200, on=True,
+    texture=textureList[IMG_ID_PLACEHOLDER],
+    causesCollision=True
     )
 
 #Main loop
