@@ -14,6 +14,8 @@ MAX_TEXTURES = 50
 Z_LAYERS = 10
 
 IMG_ID_PLACEHOLDER = 0
+IMG_ID_SMALLBLOCKDEBUG = 1
+IMG_ID_BIGBLOCKDEBUG = 2
 
 KEY_MOVEMENT_UP = pygame.K_w
 KEY_MOVEMENT_DOWN = pygame.K_s
@@ -72,6 +74,8 @@ def freeGameObject():
 #Load textures in memory
 def loadTextures():
     textureList[IMG_ID_PLACEHOLDER] = pygame.image.load("assets/placeholder.png")
+    textureList[IMG_ID_SMALLBLOCKDEBUG] = pygame.image.load("assets/smallblock.png")
+    textureList[IMG_ID_BIGBLOCKDEBUG] = pygame.image.load("assets/bigblock.png")
     
 loadTextures()
 
@@ -80,7 +84,7 @@ def mainLogic():
     getInput()
     moveKeyboardMoveables()
 
-#Moves objects which are moved by keyboard
+#Moves objects which are moved by keyboard and avoids collisions
 def moveKeyboardMoveables():
     for obj in objectList:
         if obj.movedByKeyboard:
@@ -220,7 +224,13 @@ objectList[freeGameObject()] = go.GameObject(
 
 objectList[freeGameObject()] = go.GameObject(
     x=200, y=200, on=True,
-    texture=textureList[IMG_ID_PLACEHOLDER],
+    texture=textureList[IMG_ID_SMALLBLOCKDEBUG],
+    causesCollision=True
+    )
+
+objectList[freeGameObject()] = go.GameObject(
+    x=900, y=200, on=True,
+    texture=textureList[IMG_ID_BIGBLOCKDEBUG],
     causesCollision=True
     )
 
