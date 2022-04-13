@@ -8,6 +8,8 @@ GAMEWINDOW_WIDTH = 1280
 GAMEWINDOW_HEIGHT = 720
 GAMEWINDOW_SIZE = (GAMEWINDOW_WIDTH,GAMEWINDOW_HEIGHT)
 
+GAMEWINDOW_FPS = 144
+
 MAX_GAMEOBJECTS = 200
 MAX_TEXTURES = 50
 
@@ -41,6 +43,9 @@ def catchEvents():
         if e.type == pygame.QUIT:
             global gameWindowStatus
             gameWindowStatus = False
+
+#Clock
+Clock = pygame.time.Clock()
 
 #GameObjects renderer
 # - Returns False if the passed argument isn't a pygame.Surface
@@ -79,105 +84,105 @@ def loadTextures():
     
 loadTextures()
 
+#Limit the cpu speed
+def limitCpuSpeed():
+    Clock.tick(GAMEWINDOW_FPS)
+
 #Contains the main logic code which gets executed every tick
 def mainLogic():
+    limitCpuSpeed()
     getInput()
     moveKeyboardMoveables()
 
 #Moves objects which are moved by keyboard and avoids collisions
 def moveKeyboardMoveables():
+    global tempFlag
     for obj in objectList:
         if obj.movedByKeyboard:
 
-            global flag
-
-            if inputArray[KEY_MOVEMENT_UP]:
-
-                if not obj.receivesCollision:
-                    obj.y -= obj.movementSpeedY
-                else:
-                    tempy = obj.y - obj.movementSpeedY
-                    flag = False
-
+            if inputArray[KEY_MOVEMENT_RIGHT]:
+                for i in range(obj.movementSpeedX):
+                    
+                    tempFlag = False
+                    obj.x += 1
+                    
                     for obj2 in objectList:
                         if obj2.causesCollision:
 
-                            if obj == obj2: continue
+                            if obj == obj2:
+                                continue
 
-                            if detectCollision( obj.x, obj.x + obj.texture.get_width(),
-                                                tempy, tempy + obj.texture.get_height(),
-                                                obj2.x, obj2.x + obj2.texture.get_width(),
-                                                obj2.y, obj2.y + obj2.texture.get_height()
-                                              ): flag = True
+                            if detectCollision(
+                                obj.x, obj.x + obj.texture.get_width(),
+                                obj.y, obj.y + obj.texture.get_height(),
+                                obj2.x, obj2.x + obj2.texture.get_width(),
+                                obj2.y, obj2.y + obj2.texture.get_height(),
+                            ): tempFlag = True
 
-                    if not flag:
-                        obj.y -= obj.movementSpeedY
-
-            if inputArray[KEY_MOVEMENT_DOWN]:
-
-                if not obj.receivesCollision:
-                    obj.y += obj.movementSpeedY
-                else:
-                    tempy = obj.y + obj.movementSpeedY
-                    flag = False
-
-                    for obj2 in objectList:
-                        if obj2.causesCollision:
-
-                            if obj == obj2: continue
-
-                            if detectCollision( obj.x, obj.x + obj.texture.get_width(),
-                                                tempy, tempy + obj.texture.get_height(),
-                                                obj2.x, obj2.x + obj2.texture.get_width(),
-                                                obj2.y, obj2.y + obj2.texture.get_height()
-                                              ): flag = True
-
-                    if not flag:
-                        obj.y += obj.movementSpeedY
+                    if tempFlag: obj.x -= 1
 
             if inputArray[KEY_MOVEMENT_LEFT]:
-
-                if not obj.receivesCollision:
-                    obj.x -= obj.movementSpeedX
-                else:
-                    tempx = obj.x - obj.movementSpeedX
-                    flag = False
-
+                for i in range(obj.movementSpeedX):
+                    
+                    tempFlag = False
+                    obj.x -= 1
+                    
                     for obj2 in objectList:
                         if obj2.causesCollision:
 
-                            if obj == obj2: continue
+                            if obj == obj2:
+                                continue
 
-                            if detectCollision( tempx, tempx + obj.texture.get_width(),
-                                                obj.y, obj.y + obj.texture.get_height(),
-                                                obj2.x, obj2.x + obj2.texture.get_width(),
-                                                obj2.y, obj2.y + obj2.texture.get_height()
-                                              ): flag = True
+                            if detectCollision(
+                                obj.x, obj.x + obj.texture.get_width(),
+                                obj.y, obj.y + obj.texture.get_height(),
+                                obj2.x, obj2.x + obj2.texture.get_width(),
+                                obj2.y, obj2.y + obj2.texture.get_height(),
+                            ): tempFlag = True
 
-                    if not flag:
-                        obj.x -= obj.movementSpeedX
+                    if tempFlag: obj.x += 1
 
-            if inputArray[KEY_MOVEMENT_RIGHT]:
-
-                if not obj.receivesCollision:
-                    obj.x += obj.movementSpeedX
-                else:
-                    tempx = obj.x + obj.movementSpeedX
-                    flag = False
-
+            if inputArray[KEY_MOVEMENT_UP]:
+                for i in range(obj.movementSpeedY):
+                    
+                    tempFlag = False
+                    obj.y -= 1
+                    
                     for obj2 in objectList:
                         if obj2.causesCollision:
 
-                            if obj == obj2: continue
+                            if obj == obj2:
+                                continue
 
-                            if detectCollision( tempx, tempx + obj.texture.get_width(),
-                                                obj.y, obj.y + obj.texture.get_height(),
-                                                obj2.x, obj2.x + obj2.texture.get_width(),
-                                                obj2.y, obj2.y + obj2.texture.get_height()
-                                              ): flag = True
+                            if detectCollision(
+                                obj.x, obj.x + obj.texture.get_width(),
+                                obj.y, obj.y + obj.texture.get_height(),
+                                obj2.x, obj2.x + obj2.texture.get_width(),
+                                obj2.y, obj2.y + obj2.texture.get_height(),
+                            ): tempFlag = True
 
-                    if not flag:
-                        obj.x += obj.movementSpeedX
+                    if tempFlag: obj.y += 1
+
+            if inputArray[KEY_MOVEMENT_DOWN]:
+                for i in range(obj.movementSpeedY):
+                    
+                    tempFlag = False
+                    obj.y += 1
+                    
+                    for obj2 in objectList:
+                        if obj2.causesCollision:
+
+                            if obj == obj2:
+                                continue
+
+                            if detectCollision(
+                                obj.x, obj.x + obj.texture.get_width(),
+                                obj.y, obj.y + obj.texture.get_height(),
+                                obj2.x, obj2.x + obj2.texture.get_width(),
+                                obj2.y, obj2.y + obj2.texture.get_height(),
+                            ): tempFlag = True
+
+                    if tempFlag: obj.y -= 1
 
 #Updates the input array
 def getInput():
@@ -203,20 +208,6 @@ def detectCollision(ax1, ax2, ay1, ay2, bx1, bx2, by1, by2):
 
 objectList[freeGameObject()] = go.GameObject(
     x=200, y=500, on=True,
-    texture=textureList[IMG_ID_PLACEHOLDER],
-    movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
-    receivesCollision=True, causesCollision=True
-    )
-
-objectList[freeGameObject()] = go.GameObject(
-    x=100, y=300, on=True,
-    texture=textureList[IMG_ID_PLACEHOLDER],
-    movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
-    receivesCollision=True,causesCollision=True
-    )
-
-objectList[freeGameObject()] = go.GameObject(
-    x=400, y=500, on=True,
     texture=textureList[IMG_ID_PLACEHOLDER],
     movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
     receivesCollision=True, causesCollision=True
