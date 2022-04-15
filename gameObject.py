@@ -1,5 +1,11 @@
+from pygame.transform import scale
+
 #GameObject class
 class GameObject():
+
+    # used to resize an object texture by a f(factor) amount
+    def resizeTexture(self, f):
+        self.texture = scale(self.texture, (self.texture.get_width()*f, self.texture.get_height()*f))
 
     def __init__(
         
