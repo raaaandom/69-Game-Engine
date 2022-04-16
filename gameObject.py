@@ -15,7 +15,7 @@ class GameObject():
         overwritable = False,
         movedByKeyboard = False, movementSpeedX = 0, movementSpeedY = 0,
         causesCollision = False, receivesCollision = False,
-        animationSet = None, animationTime = None, animationState = None, animationCounter = 0, animationFrame = 0
+        animationSet = None, animationTime = None, animationState = None, animationCounter = 0, animationFrame = 0, animationLastState = 0
 
     ) -> None:
         
@@ -60,3 +60,5 @@ class GameObject():
         self.animationCounter = animationCounter # Contains the elapsed frames since the last frameswitch
 
         self.animationFrame = animationFrame # Contains the number of the frame which is currently being printed
+
+        self.animationLastState = animationLastState # Contains the animation state from the last frame

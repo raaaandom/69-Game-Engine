@@ -92,6 +92,13 @@ def limitCpuSpeed():
 def animateAnimated():
     for obj in objectList:
         if obj.animationState != None:
+
+            if obj.animationLastState != obj.animationState:
+                obj.texture = textureList[obj.animationSet[obj.animationState][0]]
+                obj.animationCounter = 0
+                obj.animationFrame = 0
+
+            obj.animationLastState = obj.animationState
             
             if obj.animationCounter == obj.animationTime[obj.animationState][obj.animationFrame]:
 
@@ -104,9 +111,8 @@ def animateAnimated():
                 obj.animationCounter = 0
             else:
                 obj.animationCounter += 1
-        else:
-            obj.animationCounter = 0
-            obj.animationFrame = 0
+
+            print("time unit: " + str(obj.animationCounter) + "\tframe: " + str(obj.animationFrame))
 
 #Contains the main logic code which gets executed every tick
 def mainLogic():
@@ -232,7 +238,7 @@ objectList[freeGameObject()] = go.GameObject(
     texture=textureList[IMG_ID_SMALLBLOCKDEBUG],
     movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
     receivesCollision=True, causesCollision=True,
-    animationSet = [[IMG_ID_SMALLBLOCKDEBUG,IMG_ID_BIGBLOCKDEBUG]], animationTime = [[60,60]], animationState = 0
+    animationSet = [[IMG_ID_SMALLBLOCKDEBUG,IMG_ID_BIGBLOCKDEBUG], [IMG_ID_PLACEHOLDER,IMG_ID_SMALLBLOCKDEBUG]], animationTime = [[60,60],[120,120]]
     )
 
 objectList[freeGameObject()] = go.GameObject(
