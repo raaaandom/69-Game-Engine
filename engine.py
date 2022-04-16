@@ -8,7 +8,7 @@ GAMEWINDOW_WIDTH = 1280
 GAMEWINDOW_HEIGHT = 720
 GAMEWINDOW_SIZE = (GAMEWINDOW_WIDTH,GAMEWINDOW_HEIGHT)
 
-GAMEWINDOW_FPS = 144
+GAMEWINDOW_FPS = 60
 
 MAX_GAMEOBJECTS = 200
 MAX_TEXTURES = 50
@@ -88,11 +88,32 @@ loadTextures()
 def limitCpuSpeed():
     Clock.tick(GAMEWINDOW_FPS)
 
+#Process animations
+def animateAnimated():
+    for obj in objectList:
+        if obj.animationState != None:
+            
+            if obj.animationCounter == obj.animationTime[obj.animationState][obj.animationFrame]:
+
+                if obj.animationFrame + 1 == len(obj.animationSet[obj.animationState]):
+                    obj.animationFrame = 0
+                else:
+                    obj.animationFrame += 1
+                obj.texture = textureList[obj.animationSet[obj.animationState][obj.animationFrame]]
+                
+                obj.animationCounter = 0
+            else:
+                obj.animationCounter += 1
+        else:
+            obj.animationCounter = 0
+            obj.animationFrame = 0
+
 #Contains the main logic code which gets executed every tick
 def mainLogic():
     limitCpuSpeed()
     getInput()
     moveKeyboardMoveables()
+    animateAnimated()
 
 #Moves objects which are moved by keyboard and avoids collisions
 def moveKeyboardMoveables():
@@ -208,9 +229,10 @@ def detectCollision(ax1, ax2, ay1, ay2, bx1, bx2, by1, by2):
 
 objectList[freeGameObject()] = go.GameObject(
     x=200, y=500, on=True,
-    texture=textureList[IMG_ID_PLACEHOLDER],
+    texture=textureList[IMG_ID_SMALLBLOCKDEBUG],
     movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
-    receivesCollision=True, causesCollision=True
+    receivesCollision=True, causesCollision=True,
+    animationSet = [[IMG_ID_SMALLBLOCKDEBUG,IMG_ID_BIGBLOCKDEBUG]], animationTime = [[60,60]], animationState = 0
     )
 
 objectList[freeGameObject()] = go.GameObject(
