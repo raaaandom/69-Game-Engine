@@ -19,6 +19,8 @@ IMG_ID_PLACEHOLDER = 0
 IMG_ID_SMALLBLOCKDEBUG = 1
 IMG_ID_BIGBLOCKDEBUG = 2
 
+ANIM_SMALLTOBIG_DEBUG = 0
+
 KEY_MOVEMENT_UP = pygame.K_w
 KEY_MOVEMENT_DOWN = pygame.K_s
 KEY_MOVEMENT_LEFT = pygame.K_a
@@ -28,6 +30,13 @@ KEY_MOVEMENT_RIGHT = pygame.K_d
 textureList = [pygame.Surface((0,0))]*MAX_TEXTURES
 objectList = [go.GameObject()]*MAX_GAMEOBJECTS
 inputArray = []
+
+animationSetList = [
+    [IMG_ID_SMALLBLOCKDEBUG,IMG_ID_BIGBLOCKDEBUG] #DEBUG SMALL TO BIG // ANIM_SMALLTOBIG_DEBUG
+]
+animationTimeList = [
+    [30,30] #DEBUG SMALL TO BIG // ANIM_SMALLTOBIG_DEBUG
+]
 
 #Init values of array
 for i in range(MAX_GAMEOBJECTS):
@@ -94,25 +103,23 @@ def animateAnimated():
         if obj.animationState != None:
 
             if obj.animationLastState != obj.animationState:
-                obj.texture = textureList[obj.animationSet[obj.animationState][0]]
+                obj.texture = textureList[animationSetList[obj.animationState][0]]
                 obj.animationCounter = 0
                 obj.animationFrame = 0
 
             obj.animationLastState = obj.animationState
             
-            if obj.animationCounter == obj.animationTime[obj.animationState][obj.animationFrame]:
+            if obj.animationCounter == animationTimeList[obj.animationState][obj.animationFrame]:
 
-                if obj.animationFrame + 1 == len(obj.animationSet[obj.animationState]):
+                if obj.animationFrame + 1 == len(animationSetList[obj.animationState]):
                     obj.animationFrame = 0
                 else:
                     obj.animationFrame += 1
-                obj.texture = textureList[obj.animationSet[obj.animationState][obj.animationFrame]]
+                obj.texture = textureList[animationSetList[obj.animationState][obj.animationFrame]]
                 
                 obj.animationCounter = 0
             else:
                 obj.animationCounter += 1
-
-            print("time unit: " + str(obj.animationCounter) + "\tframe: " + str(obj.animationFrame))
 
 #Contains the main logic code which gets executed every tick
 def mainLogic():
@@ -238,7 +245,7 @@ objectList[freeGameObject()] = go.GameObject(
     texture=textureList[IMG_ID_SMALLBLOCKDEBUG],
     movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
     receivesCollision=True, causesCollision=True,
-    animationSet = [[IMG_ID_SMALLBLOCKDEBUG,IMG_ID_BIGBLOCKDEBUG], [IMG_ID_PLACEHOLDER,IMG_ID_SMALLBLOCKDEBUG]], animationTime = [[60,60],[120,120]]
+    animationState = ANIM_SMALLTOBIG_DEBUG
     )
 
 objectList[freeGameObject()] = go.GameObject(

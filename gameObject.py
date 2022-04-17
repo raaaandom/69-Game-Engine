@@ -46,15 +46,7 @@ class GameObject():
 
         self.receivesCollision = receivesCollision # Defines if the object should be obstacled by the other objects, default = False
                                                    # False = It isn't obstacled, True = It is obstacled
-
-        self.animationSet = animationSet # Defines the order in which the various frames should make the various animations, default = None
-                                         # This should be a 2D array made of [Animations] and [Frames] 
-                                         # Example: animationset[1][4] contains the 5th frame of the 2nd animation of an object
-
-        self.animationTime = animationTime # Defines the number of frames a frame in the animation should remain on screen, default = None
-                                           # This should be a 2D array made of [Animations] and [Time(in frames)] 
-                                           # Example: animationset[1][4] contains the number of frames in which the 5th frame is shown of the 2nd animation of an object
-
+                                                   
         self.animationState = animationState # Defines the animationset to consider when animating an object 
 
         self.animationCounter = animationCounter # Contains the elapsed frames since the last frameswitch
