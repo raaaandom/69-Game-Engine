@@ -20,7 +20,8 @@ class GameObject():
         causesCollision = False, receivesCollision = False,
         animationState = None, animationCounter = 0, animationFrame = 0, animationLastState = 0,
         fontContent = None, fontType = None, fontColor = (255,255,255),
-        groupID = 0
+        groupID = 0,
+        levelEditorSelected = False, levelEditorSelectable = False
 
     ) -> None:
         
@@ -71,3 +72,6 @@ class GameObject():
 
         self.groupID = groupID # Defines the group of the obj, default = 0
                                # Can be any integer
+
+        self.levelEditorSelected = levelEditorSelected # Defines if the object is selected in the level editor
+        self.levelEditorSelectable = levelEditorSelectable # Defines if the object can selected in the level editor

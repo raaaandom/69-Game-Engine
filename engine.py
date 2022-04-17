@@ -33,6 +33,9 @@ KEY_DEBUG = pygame.K_F12
 
 GROUPID_DEBUGMENU = 1
 
+EDITOR_SELECTED_COLOR = (0,255,0)
+EDITOR_SELECTED_WIDTH = 2
+
 #Global arrays
 objectList = [go.GameObject()]*MAX_GAMEOBJECTS
 textureList = [pygame.surface.Surface((0,0))]*MAX_TEXTURES
@@ -83,10 +86,13 @@ def catchEvents():
                 groupID = GROUPID_DEBUGMENU
             )
         else:
+            #DEBUG MENU CLEAR
             for o in objectList:
                 if o.groupID == GROUPID_DEBUGMENU:
                     o.overwritable = True
                     o.on = False
+                if o.levelEditorSelected:
+                    o.levelEditorSelected = False
 
     elif not inputArray[KEY_DEBUG] and debugModeFlag:
         debugModeFlag = False
@@ -115,6 +121,8 @@ def renderObjects(window):
                     if o.fontContent != None:
                         text = fontList[o.fontType].render(o.fontContent, True, o.fontColor)
                         window.blit(text, (o.x,o.y))
+                    if o.levelEditorSelected:
+                        pygame.draw.rect(gameWindow, EDITOR_SELECTED_COLOR, (o.x,o.y,o.texture.get_width(),o.texture.get_height()), EDITOR_SELECTED_WIDTH)
                     
     pygame.display.update()
     
@@ -130,9 +138,33 @@ def freeGameObject():
 def limitCpuSpeed():
     Clock.tick(GAMEWINDOW_FPS)
 
+editorSelectFlag = False
+
+#function which selects things
+def selectInEditor():
+    global editorSelectFlag
+    mouseinput = pygame.mouse.get_pressed()
+
+    #selection
+    if mouseinput[0] and not editorSelectFlag:
+        editorSelectFlag = True
+
+        if getHighZObjUnderMouse() == None:
+            return
+
+        target = objectList[getHighZObjUnderMouse()]
+
+        if target.levelEditorSelected:
+            target.levelEditorSelected = False
+        else:
+            target.levelEditorSelected = True
+
+    elif not mouseinput[0] and editorSelectFlag:
+        editorSelectFlag = False
+
 #Level editor (debug menu)
 def levelEditor():
-    pass
+    selectInEditor()
 
 #Process animations
 def animateAnimated():
@@ -253,6 +285,30 @@ def getInput():
     global inputArray
     inputArray = pygame.key.get_pressed()
 
+#function that returns the object with the highest Z on the mouse position
+def getHighZObjUnderMouse():
+
+    pos = pygame.mouse.get_pos()
+    for z in range(Z_LAYERS-1, -1, -1):
+        for i in range(MAX_GAMEOBJECTS):
+
+            if objectList[i].z != z:
+                continue
+
+            if not objectList[i].levelEditorSelectable:
+                continue
+
+            if not objectList[i].on:
+                continue
+
+            if (
+            pos[0] > objectList[i].x and pos[0] < objectList[i].x + objectList[i].texture.get_width() and
+            pos[1] > objectList[i].y and pos[1] < objectList[i].y + objectList[i].texture.get_height()
+                ):
+                    return i
+    return None
+
+#this function detects if there is a collision between 2 rects
 def detectCollision(ax1, ax2, ay1, ay2, bx1, bx2, by1, by2):
 
     if(
@@ -267,6 +323,18 @@ def detectCollision(ax1, ax2, ay1, ay2, bx1, bx2, by1, by2):
         ): return True
     return False
 
+objectList[freeGameObject()] = go.GameObject(
+
+    on = True, texture = textureList[IMG_ID_SMALLBLOCKDEBUG], movedByKeyboard=True, movementSpeedX=3,movementSpeedY=3, z=2, x=200, y=200, levelEditorSelectable=True
+
+)
+
+objectList[freeGameObject()] = go.GameObject(
+
+    on = True, texture = textureList[IMG_ID_BIGBLOCKDEBUG], movedByKeyboard=True, movementSpeedX=3,movementSpeedY=3, z=2, x=700, y=200, levelEditorSelectable=True
+
+)
+
 #Main loop
 gameWindowStatus = True
 while gameWindowStatus:
@@ -279,7 +347,7 @@ while gameWindowStatus:
     if not debugMode:
         moveKeyboardMoveables()
     else:
-        pass
+        levelEditor()
 
     renderObjects(gameWindow)
 
