@@ -130,6 +130,10 @@ def freeGameObject():
 def limitCpuSpeed():
     Clock.tick(GAMEWINDOW_FPS)
 
+#Level editor (debug menu)
+def levelEditor():
+    pass
+
 #Process animations
 def animateAnimated():
     for obj in objectList:
@@ -153,12 +157,6 @@ def animateAnimated():
                 obj.animationCounter = 0
             else:
                 obj.animationCounter += 1
-
-#Contains the main logic code which gets executed every tick
-def mainLogic():
-    limitCpuSpeed()
-    moveKeyboardMoveables()
-    animateAnimated()
 
 #Moves objects which are moved by keyboard and avoids collisions
 def moveKeyboardMoveables():
@@ -269,16 +267,20 @@ def detectCollision(ax1, ax2, ay1, ay2, bx1, bx2, by1, by2):
         ): return True
     return False
 
-#Init phase end
-#Custom code here
-
 #Main loop
 gameWindowStatus = True
 while gameWindowStatus:
-    
+
     getInput()
     catchEvents()
-    mainLogic()
+    limitCpuSpeed()
+    animateAnimated()
+
+    if not debugMode:
+        moveKeyboardMoveables()
+    else:
+        pass
+
     renderObjects(gameWindow)
 
 #Unload pygame
