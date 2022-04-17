@@ -29,6 +29,10 @@ KEY_MOVEMENT_DOWN = pygame.K_s
 KEY_MOVEMENT_LEFT = pygame.K_a
 KEY_MOVEMENT_RIGHT = pygame.K_d
 
+KEY_DEBUG = pygame.K_F12
+
+GROUPID_DEBUGMENU = 1
+
 #Global arrays
 objectList = [go.GameObject()]*MAX_GAMEOBJECTS
 textureList = [pygame.surface.Surface((0,0))]*MAX_TEXTURES
@@ -55,12 +59,38 @@ for i in range(MAX_GAMEOBJECTS):
 gameWindow = pygame.display.set_mode(GAMEWINDOW_SIZE)
 
 #Global event catcher
+debugModeFlag = False
+debugMode = False
 def catchEvents():
+    global debugMode
+    global debugModeFlag
+    
     for e in pygame.event.get():
         
         if e.type == pygame.QUIT:
             global gameWindowStatus
             gameWindowStatus = False
+
+    if inputArray[KEY_DEBUG] and not debugModeFlag:
+        debugModeFlag = True
+        debugMode = not debugMode
+
+        if debugMode:
+            #DEBUG MENU CREATION
+            objectList[freeGameObject()] = go.GameObject(
+                z = 9, on = True,
+                fontContent = " - Debug Menu", fontType = FONT_ID_DEBUG,
+                groupID = GROUPID_DEBUGMENU
+            )
+        else:
+            for o in objectList:
+                if o.groupID == GROUPID_DEBUGMENU:
+                    o.overwritable = True
+                    o.on = False
+
+    elif not inputArray[KEY_DEBUG] and debugModeFlag:
+        debugModeFlag = False
+
 
 #Clock
 Clock = pygame.time.Clock()
@@ -127,7 +157,6 @@ def animateAnimated():
 #Contains the main logic code which gets executed every tick
 def mainLogic():
     limitCpuSpeed()
-    getInput()
     moveKeyboardMoveables()
     animateAnimated()
 
@@ -243,38 +272,11 @@ def detectCollision(ax1, ax2, ay1, ay2, bx1, bx2, by1, by2):
 #Init phase end
 #Custom code here
 
-#player
-objectList[freeGameObject()] = go.GameObject(
-    x=200, y=500, on=True,
-    texture=textureList[IMG_ID_SMALLBLOCKDEBUG],
-    movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
-    receivesCollision=True, causesCollision=True
-    )
-
-#smallblock
-objectList[freeGameObject()] = go.GameObject(
-    x=200, y=200, on=True,
-    texture=textureList[IMG_ID_SMALLBLOCKDEBUG],
-    causesCollision=True
-    )
-
-#bigblock
-objectList[freeGameObject()] = go.GameObject(
-    x=900, y=200, on=True,
-    texture=textureList[IMG_ID_BIGBLOCKDEBUG],
-    causesCollision=True
-    )
-
-#debugtext
-objectList[freeGameObject()] = go.GameObject(
-    on = True,
-    fontContent=" - Debug menu", fontType=FONT_ID_DEBUG
-    )
-
 #Main loop
 gameWindowStatus = True
 while gameWindowStatus:
     
+    getInput()
     catchEvents()
     mainLogic()
     renderObjects(gameWindow)

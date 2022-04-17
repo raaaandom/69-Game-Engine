@@ -4,8 +4,11 @@ from pygame.transform import scale
 class GameObject():
 
     # used to resize an object texture by a f(factor) amount
-    def resizeTexture(self, f):
-        self.texture = scale(self.texture, (self.texture.get_width()*f, self.texture.get_height()*f))
+    def resizeTexture(self, fx, fy):
+        self.texture = scale(self.texture, (self.texture.get_width()*fx, self.texture.get_height()*fy))
+
+    def setTextureSize(self, x, y):
+        self.texture = scale(self.texture, (x, y))
 
     def __init__(
         
@@ -16,7 +19,8 @@ class GameObject():
         movedByKeyboard = False, movementSpeedX = 0, movementSpeedY = 0,
         causesCollision = False, receivesCollision = False,
         animationState = None, animationCounter = 0, animationFrame = 0, animationLastState = 0,
-        fontContent = None, fontType = None, fontColor = (255,255,255)
+        fontContent = None, fontType = None, fontColor = (255,255,255),
+        groupID = 0
 
     ) -> None:
         
@@ -64,3 +68,6 @@ class GameObject():
         
         self.fontColor = fontColor # The color of the font, default white (255,255,255 // 0xffffff)
                                    # Can be any tuple with 3 numerical value elements ranging from 0 to 255
+
+        self.groupID = groupID # Defines the group of the obj, default = 0
+                               # Can be any integer
