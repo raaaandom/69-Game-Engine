@@ -11,13 +11,16 @@ GAMEWINDOW_SIZE = (GAMEWINDOW_WIDTH,GAMEWINDOW_HEIGHT)
 GAMEWINDOW_FPS = 60
 
 MAX_GAMEOBJECTS = 200
-MAX_TEXTURES = 50
-
+MAX_TEXTURES = 200
+MAX_FONTS = 200
+MAX_ANIMATIONS = 200
 Z_LAYERS = 10
 
 IMG_ID_PLACEHOLDER = 0
 IMG_ID_SMALLBLOCKDEBUG = 1
 IMG_ID_BIGBLOCKDEBUG = 2
+
+FONT_ID_DEBUG = 0
 
 ANIM_SMALLTOBIG_DEBUG = 0
 
@@ -27,16 +30,22 @@ KEY_MOVEMENT_LEFT = pygame.K_a
 KEY_MOVEMENT_RIGHT = pygame.K_d
 
 #Global arrays
-textureList = [pygame.Surface((0,0))]*MAX_TEXTURES
 objectList = [go.GameObject()]*MAX_GAMEOBJECTS
+textureList = [pygame.surface.Surface((0,0))]*MAX_TEXTURES
+fontList = [pygame.font.Font("assets/debugfont.ttf", 0)]*MAX_FONTS
 inputArray = []
+animationSetList = [[0 for i in range(MAX_ANIMATIONS)]]
+animationTimeList = [[0 for i in range(MAX_ANIMATIONS)]]
 
-animationSetList = [
-    [IMG_ID_SMALLBLOCKDEBUG,IMG_ID_BIGBLOCKDEBUG] #DEBUG SMALL TO BIG // ANIM_SMALLTOBIG_DEBUG
-]
-animationTimeList = [
-    [30,30] #DEBUG SMALL TO BIG // ANIM_SMALLTOBIG_DEBUG
-]
+#Global arrays entries
+textureList[IMG_ID_PLACEHOLDER] = pygame.image.load("assets/placeholder.png")
+textureList[IMG_ID_SMALLBLOCKDEBUG] = pygame.image.load("assets/smallblock.png")
+textureList[IMG_ID_BIGBLOCKDEBUG] = pygame.image.load("assets/bigblock.png")
+
+fontList[FONT_ID_DEBUG] = pygame.font.Font("assets/debugfont.ttf", 24)
+
+animationSetList[ANIM_SMALLTOBIG_DEBUG] = [IMG_ID_SMALLBLOCKDEBUG,IMG_ID_BIGBLOCKDEBUG]
+animationTimeList[ANIM_SMALLTOBIG_DEBUG] = [30,30]
 
 #Init values of array
 for i in range(MAX_GAMEOBJECTS):
@@ -70,11 +79,13 @@ def renderObjects(window):
         for o in objectList:
             if o.z == z:
                 if o.on:
-                    if o.texture == None:
-                        continue
-                    else:
-                        window.blit(o.texture,(o.x,o.y))
 
+                    if o.texture != None:
+                        window.blit(o.texture,(o.x,o.y))
+                    if o.fontContent != None:
+                        text = fontList[o.fontType].render(o.fontContent, True, o.fontColor)
+                        window.blit(text, (o.x,o.y))
+                    
     pygame.display.update()
     
     return True
@@ -84,14 +95,6 @@ def freeGameObject():
     for i in range(MAX_GAMEOBJECTS):
         if objectList[i].overwritable:
             return i
-
-#Load textures in memory
-def loadTextures():
-    textureList[IMG_ID_PLACEHOLDER] = pygame.image.load("assets/placeholder.png")
-    textureList[IMG_ID_SMALLBLOCKDEBUG] = pygame.image.load("assets/smallblock.png")
-    textureList[IMG_ID_BIGBLOCKDEBUG] = pygame.image.load("assets/bigblock.png")
-    
-loadTextures()
 
 #Limit the cpu speed
 def limitCpuSpeed():
@@ -240,24 +243,32 @@ def detectCollision(ax1, ax2, ay1, ay2, bx1, bx2, by1, by2):
 #Init phase end
 #Custom code here
 
+#player
 objectList[freeGameObject()] = go.GameObject(
     x=200, y=500, on=True,
     texture=textureList[IMG_ID_SMALLBLOCKDEBUG],
     movedByKeyboard=True, movementSpeedX=1, movementSpeedY=1,
-    receivesCollision=True, causesCollision=True,
-    animationState = ANIM_SMALLTOBIG_DEBUG
+    receivesCollision=True, causesCollision=True
     )
 
+#smallblock
 objectList[freeGameObject()] = go.GameObject(
     x=200, y=200, on=True,
     texture=textureList[IMG_ID_SMALLBLOCKDEBUG],
     causesCollision=True
     )
 
+#bigblock
 objectList[freeGameObject()] = go.GameObject(
     x=900, y=200, on=True,
     texture=textureList[IMG_ID_BIGBLOCKDEBUG],
     causesCollision=True
+    )
+
+#debugtext
+objectList[freeGameObject()] = go.GameObject(
+    on = True,
+    fontContent=" - Debug menu", fontType=FONT_ID_DEBUG
     )
 
 #Main loop

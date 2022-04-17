@@ -15,7 +15,8 @@ class GameObject():
         overwritable = False,
         movedByKeyboard = False, movementSpeedX = 0, movementSpeedY = 0,
         causesCollision = False, receivesCollision = False,
-        animationSet = None, animationTime = None, animationState = None, animationCounter = 0, animationFrame = 0, animationLastState = 0
+        animationState = None, animationCounter = 0, animationFrame = 0, animationLastState = 0,
+        fontContent = None, fontType = None, fontColor = (255,255,255)
 
     ) -> None:
         
@@ -54,3 +55,12 @@ class GameObject():
         self.animationFrame = animationFrame # Contains the number of the frame which is currently being printed
 
         self.animationLastState = animationLastState # Contains the animation state from the last frame
+
+        self.fontContent = fontContent # The value of the text, default None
+                                       # None = object is not a text, "text" = object is a text
+
+        self.fontType = fontType # Defines the font used when rendering the fontContent string, default = None
+                                 # None = no font, index of fontList = yes font (viva allah)
+        
+        self.fontColor = fontColor # The color of the font, default white (255,255,255 // 0xffffff)
+                                   # Can be any tuple with 3 numerical value elements ranging from 0 to 255
