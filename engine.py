@@ -29,12 +29,18 @@ KEY_MOVEMENT_DOWN = pygame.K_s
 KEY_MOVEMENT_LEFT = pygame.K_a
 KEY_MOVEMENT_RIGHT = pygame.K_d
 
-KEY_DEBUG = pygame.K_F12
+KEY_EDITOR = pygame.K_F12
+KEY_RESCALE_LOWER_X = pygame.K_LEFT
+KEY_RESCALE_HIGHER_X = pygame.K_RIGHT
+KEY_RESCALE_LOWER_Y = pygame.K_DOWN
+KEY_RESCALE_HIGHER_Y = pygame.K_UP
 
 GROUPID_DEBUGMENU = 1
 
 EDITOR_SELECTED_COLOR = (0,255,0)
 EDITOR_SELECTED_WIDTH = 2
+EDITOR_RESCALESPEED = 1
+EDITOR_MOVESPEED = 2
 
 #Global arrays
 objectList = [go.GameObject()]*MAX_GAMEOBJECTS
@@ -74,7 +80,7 @@ def catchEvents():
             global gameWindowStatus
             gameWindowStatus = False
 
-    if inputArray[KEY_DEBUG] and not debugModeFlag:
+    if inputArray[KEY_EDITOR] and not debugModeFlag:
         debugModeFlag = True
         debugMode = not debugMode
 
@@ -82,7 +88,7 @@ def catchEvents():
             #DEBUG MENU CREATION
             objectList[freeGameObject()] = go.GameObject(
                 z = 9, on = True,
-                fontContent = " - Debug Menu", fontType = FONT_ID_DEBUG,
+                fontContent = " - Edit mode", fontType = FONT_ID_DEBUG,
                 groupID = GROUPID_DEBUGMENU
             )
         else:
@@ -94,7 +100,7 @@ def catchEvents():
                 if o.levelEditorSelected:
                     o.levelEditorSelected = False
 
-    elif not inputArray[KEY_DEBUG] and debugModeFlag:
+    elif not inputArray[KEY_EDITOR] and debugModeFlag:
         debugModeFlag = False
 
 
@@ -162,9 +168,39 @@ def selectInEditor():
     elif not mouseinput[0] and editorSelectFlag:
         editorSelectFlag = False
 
+def rescaleSelected():
+
+    for o in objectList:
+        if o.levelEditorSelected:
+            if o.on:
+
+                if o.texture.get_width() <= 1:
+                    o.setTextureSize(2, o.texture.get_height())
+                if o.texture.get_height() <= 1:
+                    o.setTextureSize(o.texture.get_width(), 2)
+
+                if inputArray[KEY_RESCALE_HIGHER_X]:
+                    o.setTextureSize(o.texture.get_width() + EDITOR_RESCALESPEED, o.texture.get_height())
+                if inputArray[KEY_RESCALE_HIGHER_Y]:
+                    o.setTextureSize(o.texture.get_width(), o.texture.get_height() + EDITOR_RESCALESPEED)
+                if inputArray[KEY_RESCALE_LOWER_X]:
+                    o.setTextureSize(o.texture.get_width() - EDITOR_RESCALESPEED, o.texture.get_height())
+                if inputArray[KEY_RESCALE_LOWER_Y]:
+                    o.setTextureSize(o.texture.get_width(), o.texture.get_height() - EDITOR_RESCALESPEED)
+
+                if inputArray[KEY_MOVEMENT_RIGHT]:
+                    o.x += EDITOR_MOVESPEED
+                if inputArray[KEY_MOVEMENT_LEFT]:
+                    o.x -= EDITOR_MOVESPEED
+                if inputArray[KEY_MOVEMENT_UP]:
+                    o.y -= EDITOR_MOVESPEED
+                if inputArray[KEY_MOVEMENT_DOWN]:
+                    o.y += EDITOR_MOVESPEED
+
 #Level editor (debug menu)
 def levelEditor():
     selectInEditor()
+    rescaleSelected()
 
 #Process animations
 def animateAnimated():
@@ -324,28 +360,36 @@ def detectCollision(ax1, ax2, ay1, ay2, bx1, bx2, by1, by2):
     return False
 
 objectList[freeGameObject()] = go.GameObject(
-
-    on = True, texture = textureList[IMG_ID_SMALLBLOCKDEBUG], movedByKeyboard=True, movementSpeedX=3,movementSpeedY=3, z=2, x=200, y=200, levelEditorSelectable=True
-
+    x=100, y=100, z=3, on=True, texture=textureList[IMG_ID_SMALLBLOCKDEBUG],
+    movedByKeyboard=True,
+    movementSpeedX=4, movementSpeedY=4,
+    causesCollision=True, receivesCollision=True,
+    levelEditorSelectable=True
 )
 
 objectList[freeGameObject()] = go.GameObject(
+    x=200, y=300, z=4, on=True, texture=textureList[IMG_ID_SMALLBLOCKDEBUG],
+    causesCollision=True, receivesCollision=True,
+    levelEditorSelectable=True
+)
 
-    on = True, texture = textureList[IMG_ID_BIGBLOCKDEBUG], movedByKeyboard=True, movementSpeedX=3,movementSpeedY=3, z=2, x=700, y=200, levelEditorSelectable=True
-
+objectList[freeGameObject()] = go.GameObject(
+    x=500, y=300, z=4, on=True, texture=textureList[IMG_ID_BIGBLOCKDEBUG],
+    causesCollision=True, receivesCollision=True,
+    levelEditorSelectable=True
 )
 
 #Main loop
 gameWindowStatus = True
 while gameWindowStatus:
 
+    limitCpuSpeed()
     getInput()
     catchEvents()
-    limitCpuSpeed()
-    animateAnimated()
 
     if not debugMode:
         moveKeyboardMoveables()
+        animateAnimated()
     else:
         levelEditor()
 
