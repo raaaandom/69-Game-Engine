@@ -21,7 +21,8 @@ class GameObject():
         animationState = None, animationCounter = 0, animationFrame = 0, animationLastState = 0,
         fontContent = None, fontType = None, fontColor = (255,255,255),
         groupID = 0,
-        levelEditorSelected = False, levelEditorSelectable = False
+        levelEditorSelected = False, levelEditorSelectable = False,
+        textureExportWidth = 0, textureExportHeight = 0
 
     ) -> None:
         
@@ -75,3 +76,6 @@ class GameObject():
 
         self.levelEditorSelected = levelEditorSelected # Defines if the object is selected in the level editor
         self.levelEditorSelectable = levelEditorSelectable # Defines if the object can selected in the level editor
+
+        self.textureExportWidth = textureExportWidth # used in import and export phase
+        self.textureExportHeight = textureExportHeight # used in import and export phase

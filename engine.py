@@ -1,6 +1,9 @@
 #Imports
+import os
+import pickle
 import pygame
 import gameObject as go
+import copy
 pygame.init()
 
 #Global Constants
@@ -34,6 +37,7 @@ KEY_RESCALE_LOWER_X = pygame.K_LEFT
 KEY_RESCALE_HIGHER_X = pygame.K_RIGHT
 KEY_RESCALE_LOWER_Y = pygame.K_DOWN
 KEY_RESCALE_HIGHER_Y = pygame.K_UP
+KEY_EXPORT_LEVEL = pygame.K_F11
 
 GROUPID_DEBUGMENU = 1
 
@@ -79,6 +83,10 @@ def catchEvents():
         if e.type == pygame.QUIT:
             global gameWindowStatus
             gameWindowStatus = False
+
+        if debugMode:
+            if e.type == pygame.DROPFILE:
+                importLevel(e)
 
     if inputArray[KEY_EDITOR] and not debugModeFlag:
         debugModeFlag = True
@@ -168,8 +176,7 @@ def selectInEditor():
     elif not mouseinput[0] and editorSelectFlag:
         editorSelectFlag = False
 
-def rescaleSelected():
-
+def editSelected():
     for o in objectList:
         if o.levelEditorSelected:
             if o.on:
@@ -197,10 +204,58 @@ def rescaleSelected():
                 if inputArray[KEY_MOVEMENT_DOWN]:
                     o.y += EDITOR_MOVESPEED
 
+exportFlag = False
+nExport = 0
+def exportLevel():
+    global exportFlag
+    global nExport
+    if inputArray[KEY_EXPORT_LEVEL] and not exportFlag:
+
+        exportFlag = True
+        
+        #Level export
+        nExport=len(os.listdir("exported/"))
+        export = open(f"exported/level{nExport}.sne","wb")
+        exportList = []
+
+        for obj in objectList:
+            if obj.on:
+                if not obj.groupID == GROUPID_DEBUGMENU:
+
+                    backupTexture = obj.texture
+                    obj.textureExportWidth = obj.texture.get_width()
+                    obj.textureExportHeight = obj.texture.get_height()
+                    obj.texture = pygame.image.tostring(obj.texture, 'RGBA')
+                    toexport = copy.deepcopy(obj)
+                    exportList.append(toexport)
+                    obj.texture = backupTexture
+
+        pickle.dump(exportList, export)
+
+    elif not inputArray[KEY_EXPORT_LEVEL] and exportFlag:
+        exportFlag = False
+
+def importLevel(dropFileEvent):
+    file = open(dropFileEvent.file, "rb")
+    importList = pickle.load(file)
+
+    for obj in objectList:
+        if obj.groupID != GROUPID_DEBUGMENU:
+            obj.overwritable = True
+            obj.on = False
+
+    for obj in importList:
+
+        toimport = copy.deepcopy(obj)
+        cleanid = freeGameObject()
+        objectList[cleanid] = toimport
+        objectList[cleanid].texture = obj.texture = pygame.image.fromstring(obj.texture, (obj.textureExportWidth, obj.textureExportHeight), 'RGBA')
+
 #Level editor (debug menu)
 def levelEditor():
     selectInEditor()
-    rescaleSelected()
+    editSelected()
+    exportLevel()
 
 #Process animations
 def animateAnimated():
