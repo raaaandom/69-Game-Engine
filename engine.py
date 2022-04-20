@@ -113,13 +113,13 @@ def catchEvents():
 
             objectList[freeGameObject()] = go.GameObject(
                 x = 10, y = GAMEWINDOW_HEIGHT - 70, z = 9, on = True,
-                fontContent = "[1] Preset: %CurrentPreset%", fontType = FONT_ID_DEBUG, fontVariables=[["%CurrentPreset%", currentEditorMode]],
+                fontContent = "[1] Preset: ^preset", fontType = FONT_ID_DEBUG, fontVariables=[["^preset", currentEditorMode]],
                 groupID = GROUPID_DEBUGMENU
             )
 
             objectList[freeGameObject()] = go.GameObject(
                 x = 10, y = GAMEWINDOW_HEIGHT - 40, z = 9, on = True,
-                fontContent = "[2] Edit attribute: %CurrentAttribute%", fontType = FONT_ID_DEBUG, fontVariables=[["%CurrentAttribute%", currentEditorMode]],
+                fontContent = "[2] Edit attribute: ^attribute", fontType = FONT_ID_DEBUG, fontVariables=[["^attribute", currentEditorMode]],
                 groupID = GROUPID_DEBUGMENU
             )
 
@@ -288,35 +288,38 @@ def placeObjects():
 
     if inputArray[KEY_SELECT_PRESET_EDITOR] and not presetEditorFlag:
         presetEditorFlag = True
-        currentEditorMode.set(1)
 
-        for obj in objectList:
-            if obj.groupID == GROUPID_DEBUGMENU:
-                if obj.fontContent != None:
-
-                    if obj.fontContent.__contains__("[1]"):
-                        obj.fontType = FONT_ID_DEBUG_BOLD
-                    if obj.fontContent.__contains__("[2]"):
-                        obj.fontType = FONT_ID_DEBUG
+        if currentEditorMode.get() == 1:
+            currentEditorMode.set(0)
+        else:
+            currentEditorMode.set(1)
 
     elif not inputArray[KEY_SELECT_PRESET_EDITOR] and presetEditorFlag:
         presetEditorFlag = False
 
     if inputArray[KEY_SELECT_ATTRIBUTE_EDITOR] and not attributeEditorFlag:
         attributeEditorFlag = True
-        currentEditorMode.set(2)
 
-        for obj in objectList:
-            if obj.groupID == GROUPID_DEBUGMENU:
-                if obj.fontContent != None:
-
-                    if obj.fontContent.__contains__("[1]"):
-                        obj.fontType = FONT_ID_DEBUG
-                    if obj.fontContent.__contains__("[2]"):
-                        obj.fontType = FONT_ID_DEBUG_BOLD
+        if currentEditorMode.get() == 2:
+            currentEditorMode.set(0)
+        else:
+            currentEditorMode.set(2)
 
     elif not inputArray[KEY_SELECT_ATTRIBUTE_EDITOR] and attributeEditorFlag:
         attributeEditorFlag = False
+
+    for o in objectList:
+        if o.fontContent != None:
+            if o.fontContent.__contains__("^preset"):
+                if currentEditorMode.get() == 1:
+                    o.fontType = FONT_ID_DEBUG_BOLD
+                else:
+                    o.fontType = FONT_ID_DEBUG
+            elif o.fontContent.__contains__("^attribute"):
+                if currentEditorMode.get() == 2:
+                    o.fontType = FONT_ID_DEBUG_BOLD
+                else:
+                    o.fontType = FONT_ID_DEBUG
 
 #Level editor (debug menu)
 def levelEditor():
