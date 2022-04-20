@@ -4,6 +4,7 @@ import pickle
 import pygame
 import gameObject as go
 import copy
+import sneUtils
 pygame.init()
 
 #Global Constants
@@ -24,6 +25,9 @@ IMG_ID_SMALLBLOCKDEBUG = 1
 IMG_ID_BIGBLOCKDEBUG = 2
 
 FONT_ID_DEBUG = 0
+FONT_ID_DEBUG_BOLD = 1
+
+FONT_ID_DEBUG_SIZE = 24
 
 ANIM_SMALLTOBIG_DEBUG = 0
 
@@ -38,6 +42,8 @@ KEY_RESCALE_HIGHER_X = pygame.K_RIGHT
 KEY_RESCALE_LOWER_Y = pygame.K_DOWN
 KEY_RESCALE_HIGHER_Y = pygame.K_UP
 KEY_EXPORT_LEVEL = pygame.K_F11
+KEY_SELECT_PRESET_EDITOR = pygame.K_1
+KEY_SELECT_ATTRIBUTE_EDITOR = pygame.K_2
 
 GROUPID_DEBUGMENU = 1
 
@@ -59,7 +65,9 @@ textureList[IMG_ID_PLACEHOLDER] = pygame.image.load("assets/placeholder.png")
 textureList[IMG_ID_SMALLBLOCKDEBUG] = pygame.image.load("assets/smallblock.png")
 textureList[IMG_ID_BIGBLOCKDEBUG] = pygame.image.load("assets/bigblock.png")
 
-fontList[FONT_ID_DEBUG] = pygame.font.Font("assets/debugfont.ttf", 24)
+fontList[FONT_ID_DEBUG] = pygame.font.Font("assets/debugfont.ttf", FONT_ID_DEBUG_SIZE)
+fontList[FONT_ID_DEBUG_BOLD] = pygame.font.Font("assets/debugfont.ttf", FONT_ID_DEBUG_SIZE)
+fontList[FONT_ID_DEBUG_BOLD].bold = True
 
 animationSetList[ANIM_SMALLTOBIG_DEBUG] = [IMG_ID_SMALLBLOCKDEBUG,IMG_ID_BIGBLOCKDEBUG]
 animationTimeList[ANIM_SMALLTOBIG_DEBUG] = [30,30]
@@ -77,7 +85,8 @@ debugMode = False
 def catchEvents():
     global debugMode
     global debugModeFlag
-    
+    global currentEditorMode
+
     for e in pygame.event.get():
         
         if e.type == pygame.QUIT:
@@ -91,14 +100,29 @@ def catchEvents():
     if inputArray[KEY_EDITOR] and not debugModeFlag:
         debugModeFlag = True
         debugMode = not debugMode
+        currentEditorMode = sneUtils.Pointer(0)
 
         if debugMode:
             #DEBUG MENU CREATION
+
             objectList[freeGameObject()] = go.GameObject(
-                z = 9, on = True,
-                fontContent = " - Edit mode", fontType = FONT_ID_DEBUG,
+                x = 10, y = 10, z = 9, on = True,
+                fontContent = "[F12] Edit mode", fontType = FONT_ID_DEBUG,
                 groupID = GROUPID_DEBUGMENU
             )
+
+            objectList[freeGameObject()] = go.GameObject(
+                x = 10, y = GAMEWINDOW_HEIGHT - 70, z = 9, on = True,
+                fontContent = "[1] Preset: %CurrentPreset%", fontType = FONT_ID_DEBUG, fontVariables=[["%CurrentPreset%", currentEditorMode]],
+                groupID = GROUPID_DEBUGMENU
+            )
+
+            objectList[freeGameObject()] = go.GameObject(
+                x = 10, y = GAMEWINDOW_HEIGHT - 40, z = 9, on = True,
+                fontContent = "[2] Edit attribute: %CurrentAttribute%", fontType = FONT_ID_DEBUG, fontVariables=[["%CurrentAttribute%", currentEditorMode]],
+                groupID = GROUPID_DEBUGMENU
+            )
+
         else:
             #DEBUG MENU CLEAR
             for o in objectList:
@@ -133,7 +157,11 @@ def renderObjects(window):
                     if o.texture != None:
                         window.blit(o.texture,(o.x,o.y))
                     if o.fontContent != None:
-                        text = fontList[o.fontType].render(o.fontContent, True, o.fontColor)
+                        temp = o.fontContent
+                        if o.fontVariables != None:
+                            for i in range(len(o.fontVariables)):
+                                temp = temp.replace(o.fontVariables[i][0], str(o.fontVariables[i][1].get()))
+                        text = fontList[o.fontType].render(temp, True, o.fontColor)
                         window.blit(text, (o.x,o.y))
                     if o.levelEditorSelected:
                         pygame.draw.rect(gameWindow, EDITOR_SELECTED_COLOR, (o.x,o.y,o.texture.get_width(),o.texture.get_height()), EDITOR_SELECTED_WIDTH)
@@ -251,11 +279,51 @@ def importLevel(dropFileEvent):
         objectList[cleanid] = toimport
         objectList[cleanid].texture = obj.texture = pygame.image.fromstring(obj.texture, (obj.textureExportWidth, obj.textureExportHeight), 'RGBA')
 
+presetEditorFlag = False
+attributeEditorFlag = False
+def placeObjects():   
+    global presetEditorFlag
+    global attributeEditorFlag
+    global currentEditorMode
+
+    if inputArray[KEY_SELECT_PRESET_EDITOR] and not presetEditorFlag:
+        presetEditorFlag = True
+        currentEditorMode.set(1)
+
+        for obj in objectList:
+            if obj.groupID == GROUPID_DEBUGMENU:
+                if obj.fontContent != None:
+
+                    if obj.fontContent.__contains__("[1]"):
+                        obj.fontType = FONT_ID_DEBUG_BOLD
+                    if obj.fontContent.__contains__("[2]"):
+                        obj.fontType = FONT_ID_DEBUG
+
+    elif not inputArray[KEY_SELECT_PRESET_EDITOR] and presetEditorFlag:
+        presetEditorFlag = False
+
+    if inputArray[KEY_SELECT_ATTRIBUTE_EDITOR] and not attributeEditorFlag:
+        attributeEditorFlag = True
+        currentEditorMode.set(2)
+
+        for obj in objectList:
+            if obj.groupID == GROUPID_DEBUGMENU:
+                if obj.fontContent != None:
+
+                    if obj.fontContent.__contains__("[1]"):
+                        obj.fontType = FONT_ID_DEBUG
+                    if obj.fontContent.__contains__("[2]"):
+                        obj.fontType = FONT_ID_DEBUG_BOLD
+
+    elif not inputArray[KEY_SELECT_ATTRIBUTE_EDITOR] and attributeEditorFlag:
+        attributeEditorFlag = False
+
 #Level editor (debug menu)
 def levelEditor():
     selectInEditor()
     editSelected()
     exportLevel()
+    placeObjects()
 
 #Process animations
 def animateAnimated():

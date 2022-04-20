@@ -19,7 +19,7 @@ class GameObject():
         movedByKeyboard = False, movementSpeedX = 0, movementSpeedY = 0,
         causesCollision = False, receivesCollision = False,
         animationState = None, animationCounter = 0, animationFrame = 0, animationLastState = 0,
-        fontContent = None, fontType = None, fontColor = (255,255,255),
+        fontContent = None, fontType = None, fontColor = (255,255,255), fontVariables = None,
         groupID = 0,
         levelEditorSelected = False, levelEditorSelectable = False,
         textureExportWidth = 0, textureExportHeight = 0
@@ -70,6 +70,9 @@ class GameObject():
         
         self.fontColor = fontColor # The color of the font, default white (255,255,255 // 0xffffff)
                                    # Can be any tuple with 3 numerical value elements ranging from 0 to 255
+
+        self.fontVariables = fontVariables # Used for displaying variable values in font objects, usage:
+                                           # [[placeholder, pointer], [placeholder, pointer], ...]
 
         self.groupID = groupID # Defines the group of the obj, default = 0
                                # Can be any integer
