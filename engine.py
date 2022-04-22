@@ -100,7 +100,7 @@ def catchEvents():
     if inputArray[KEY_EDITOR] and not debugModeFlag:
         debugModeFlag = True
         debugMode = not debugMode
-        currentEditorMode = sneUtils.Pointer(0)
+        currentEditorMode = 0
 
         if debugMode:
             #DEBUG MENU CREATION
@@ -113,13 +113,13 @@ def catchEvents():
 
             objectList[freeGameObject()] = go.GameObject(
                 x = 10, y = GAMEWINDOW_HEIGHT - 70, z = 9, on = True,
-                fontContent = "[1] Preset: ^preset", fontType = FONT_ID_DEBUG, fontVariables=[["^preset", currentEditorMode]],
+                fontContent = "[1] Preset:", fontType = FONT_ID_DEBUG,
                 groupID = GROUPID_DEBUGMENU
             )
 
             objectList[freeGameObject()] = go.GameObject(
                 x = 10, y = GAMEWINDOW_HEIGHT - 40, z = 9, on = True,
-                fontContent = "[2] Edit attribute: ^attribute", fontType = FONT_ID_DEBUG, fontVariables=[["^attribute", currentEditorMode]],
+                fontContent = "[2] Edit object:", fontType = FONT_ID_DEBUG,
                 groupID = GROUPID_DEBUGMENU
             )
 
@@ -204,7 +204,7 @@ def selectInEditor():
     elif not mouseinput[0] and editorSelectFlag:
         editorSelectFlag = False
 
-def editSelected():
+def quickEditSelected():
     for o in objectList:
         if o.levelEditorSelected:
             if o.on:
@@ -281,7 +281,7 @@ def importLevel(dropFileEvent):
 
 presetEditorFlag = False
 attributeEditorFlag = False
-def placeObjects():   
+def switchEditorMode():   
     global presetEditorFlag
     global attributeEditorFlag
     global currentEditorMode
@@ -289,10 +289,12 @@ def placeObjects():
     if inputArray[KEY_SELECT_PRESET_EDITOR] and not presetEditorFlag:
         presetEditorFlag = True
 
-        if currentEditorMode.get() == 1:
-            currentEditorMode.set(0)
+        if currentEditorMode == 1:
+            currentEditorMode = 0
         else:
-            currentEditorMode.set(1)
+            currentEditorMode = 1
+            for obj in objectList:
+                obj.levelEditorSelected = False
 
     elif not inputArray[KEY_SELECT_PRESET_EDITOR] and presetEditorFlag:
         presetEditorFlag = False
@@ -300,33 +302,39 @@ def placeObjects():
     if inputArray[KEY_SELECT_ATTRIBUTE_EDITOR] and not attributeEditorFlag:
         attributeEditorFlag = True
 
-        if currentEditorMode.get() == 2:
-            currentEditorMode.set(0)
+        if currentEditorMode == 2:
+            currentEditorMode = 0
+            for obj in objectList:
+                obj.levelEditorSelected = False
         else:
-            currentEditorMode.set(2)
+            currentEditorMode = 2
 
     elif not inputArray[KEY_SELECT_ATTRIBUTE_EDITOR] and attributeEditorFlag:
         attributeEditorFlag = False
 
     for o in objectList:
-        if o.fontContent != None:
-            if o.fontContent.__contains__("^preset"):
-                if currentEditorMode.get() == 1:
-                    o.fontType = FONT_ID_DEBUG_BOLD
-                else:
-                    o.fontType = FONT_ID_DEBUG
-            elif o.fontContent.__contains__("^attribute"):
-                if currentEditorMode.get() == 2:
-                    o.fontType = FONT_ID_DEBUG_BOLD
-                else:
-                    o.fontType = FONT_ID_DEBUG
+        if o.groupID == GROUPID_DEBUGMENU:
+            if o.fontContent != None:
+                if o.fontContent.__contains__("[1]"):
+                    if currentEditorMode == 1:
+                        o.fontColor = (255,0,0)
+                    else:
+                        o.fontColor = (255,255,255)
+                elif o.fontContent.__contains__("[2]"):
+                    if currentEditorMode == 2:
+                        o.fontColor = (255,0,0)
+                    else:
+                        o.fontColor = (255,255,255)
 
 #Level editor (debug menu)
 def levelEditor():
-    selectInEditor()
-    editSelected()
+
     exportLevel()
-    placeObjects()
+    switchEditorMode()
+
+    if currentEditorMode == 2:
+        selectInEditor()
+        quickEditSelected()
 
 #Process animations
 def animateAnimated():
