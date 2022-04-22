@@ -79,6 +79,19 @@ for i in range(MAX_GAMEOBJECTS):
 #Game window
 gameWindow = pygame.display.set_mode(GAMEWINDOW_SIZE)
 
+#OBJ Attributes
+GAMEOBJECT_DICT = go.GameObject.__dict__
+GAMEOBJECT_ATTRIBUTES = go.GameObject().__dir__()
+
+for i in range(len(GAMEOBJECT_ATTRIBUTES)):
+    if GAMEOBJECT_ATTRIBUTES[i].startswith("_"): GAMEOBJECT_ATTRIBUTES[i] = None
+    
+try:
+    while GAMEOBJECT_ATTRIBUTES.remove(None) == None:
+        pass
+except ValueError:
+    pass
+
 #Global event catcher
 debugModeFlag = False
 debugMode = False
@@ -280,6 +293,8 @@ def importLevel(dropFileEvent):
 
 def createAttributeMenu():
 
+    currentAttributePointer = sneUtils.Pointer(0)
+
     objectList[freeGameObject()] = go.GameObject(
         x = 10, y = GAMEWINDOW_HEIGHT - 130, z = 9, on = True,
         fontContent = "[/] Value:", fontType = FONT_ID_DEBUG,
@@ -288,21 +303,9 @@ def createAttributeMenu():
 
     objectList[freeGameObject()] = go.GameObject(
         x = 10, y = GAMEWINDOW_HEIGHT - 160, z = 9, on = True,
-        fontContent = "[/] Attribute:", fontType = FONT_ID_DEBUG,
+        fontContent = "[/] Attribute: ^attribute", fontType = FONT_ID_DEBUG, fontVariables = [["^attribute", currentAttributePointer]],
         groupID = GROUPID_DEBUGMENU
     )
-
-    gameObjectDict = go.GameObject.__dict__
-    gameObjectName = go.GameObject().__dir__()
-
-    for i in range(len(gameObjectName)):
-        if gameObjectName[i].startswith("_"): gameObjectName[i] = None
-    
-    try:
-        while gameObjectName.remove(None) == None:
-            pass
-    except ValueError:
-        pass
 
 def destroyAttributeMenu():
     for obj in objectList:
