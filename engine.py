@@ -113,13 +113,13 @@ def catchEvents():
 
             objectList[freeGameObject()] = go.GameObject(
                 x = 10, y = GAMEWINDOW_HEIGHT - 70, z = 9, on = True,
-                fontContent = "[1] Preset:", fontType = FONT_ID_DEBUG,
+                fontContent = "[1] Preset", fontType = FONT_ID_DEBUG,
                 groupID = GROUPID_DEBUGMENU
             )
 
             objectList[freeGameObject()] = go.GameObject(
                 x = 10, y = GAMEWINDOW_HEIGHT - 40, z = 9, on = True,
-                fontContent = "[2] Edit object:", fontType = FONT_ID_DEBUG,
+                fontContent = "[2] Edit object", fontType = FONT_ID_DEBUG,
                 groupID = GROUPID_DEBUGMENU
             )
 
@@ -279,6 +279,14 @@ def importLevel(dropFileEvent):
         objectList[cleanid] = toimport
         objectList[cleanid].texture = obj.texture = pygame.image.fromstring(obj.texture, (obj.textureExportWidth, obj.textureExportHeight), 'RGBA')
 
+
+def destroyAttributeMenu():
+    for obj in objectList:
+        if obj.fontContent != None:
+            if obj.fontContent.__contains__("[/]"):
+                obj.on = False
+                obj.overwritable = True
+
 presetEditorFlag = False
 attributeEditorFlag = False
 def switchEditorMode():   
@@ -289,12 +297,19 @@ def switchEditorMode():
     if inputArray[KEY_SELECT_PRESET_EDITOR] and not presetEditorFlag:
         presetEditorFlag = True
 
+        #SELECT EDITOR MODE 1
         if currentEditorMode == 1:
+
             currentEditorMode = 0
+
         else:
+
             currentEditorMode = 1
+
             for obj in objectList:
                 obj.levelEditorSelected = False
+            
+            destroyAttributeMenu()
 
     elif not inputArray[KEY_SELECT_PRESET_EDITOR] and presetEditorFlag:
         presetEditorFlag = False
@@ -302,12 +317,31 @@ def switchEditorMode():
     if inputArray[KEY_SELECT_ATTRIBUTE_EDITOR] and not attributeEditorFlag:
         attributeEditorFlag = True
 
+        #SELECT EDITOR MODE 2
         if currentEditorMode == 2:
+
             currentEditorMode = 0
+
             for obj in objectList:
                 obj.levelEditorSelected = False
+                
+            destroyAttributeMenu()
+
         else:
+
             currentEditorMode = 2
+
+            objectList[freeGameObject()] = go.GameObject(
+                x = 10, y = GAMEWINDOW_HEIGHT - 130, z = 9, on = True,
+                fontContent = "[/] Value:", fontType = FONT_ID_DEBUG,
+                groupID = GROUPID_DEBUGMENU
+            )
+
+            objectList[freeGameObject()] = go.GameObject(
+                x = 10, y = GAMEWINDOW_HEIGHT - 160, z = 9, on = True,
+                fontContent = "[/] Attribute:", fontType = FONT_ID_DEBUG,
+                groupID = GROUPID_DEBUGMENU
+            )
 
     elif not inputArray[KEY_SELECT_ATTRIBUTE_EDITOR] and attributeEditorFlag:
         attributeEditorFlag = False
