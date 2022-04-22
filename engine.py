@@ -103,8 +103,7 @@ def catchEvents():
         currentEditorMode = 0
 
         if debugMode:
-            #DEBUG MENU CREATION
-
+                
             objectList[freeGameObject()] = go.GameObject(
                 x = 10, y = 10, z = 9, on = True,
                 fontContent = "[F12] Edit mode", fontType = FONT_ID_DEBUG,
@@ -113,13 +112,13 @@ def catchEvents():
 
             objectList[freeGameObject()] = go.GameObject(
                 x = 10, y = GAMEWINDOW_HEIGHT - 70, z = 9, on = True,
-                fontContent = "[1] Preset", fontType = FONT_ID_DEBUG,
+                fontContent = "[1] New", fontType = FONT_ID_DEBUG,
                 groupID = GROUPID_DEBUGMENU
             )
 
             objectList[freeGameObject()] = go.GameObject(
                 x = 10, y = GAMEWINDOW_HEIGHT - 40, z = 9, on = True,
-                fontContent = "[2] Edit object", fontType = FONT_ID_DEBUG,
+                fontContent = "[2] Edit", fontType = FONT_ID_DEBUG,
                 groupID = GROUPID_DEBUGMENU
             )
 
@@ -210,18 +209,18 @@ def quickEditSelected():
             if o.on:
 
                 if o.texture.get_width() <= 1:
-                    o.setTextureSize(2, o.texture.get_height())
+                    o._setTextureSize(2, o.texture.get_height())
                 if o.texture.get_height() <= 1:
-                    o.setTextureSize(o.texture.get_width(), 2)
+                    o._setTextureSize(o.texture.get_width(), 2)
 
                 if inputArray[KEY_RESCALE_HIGHER_X]:
-                    o.setTextureSize(o.texture.get_width() + EDITOR_RESCALESPEED, o.texture.get_height())
+                    o._setTextureSize(o.texture.get_width() + EDITOR_RESCALESPEED, o.texture.get_height())
                 if inputArray[KEY_RESCALE_HIGHER_Y]:
-                    o.setTextureSize(o.texture.get_width(), o.texture.get_height() + EDITOR_RESCALESPEED)
+                    o._setTextureSize(o.texture.get_width(), o.texture.get_height() + EDITOR_RESCALESPEED)
                 if inputArray[KEY_RESCALE_LOWER_X]:
-                    o.setTextureSize(o.texture.get_width() - EDITOR_RESCALESPEED, o.texture.get_height())
+                    o._setTextureSize(o.texture.get_width() - EDITOR_RESCALESPEED, o.texture.get_height())
                 if inputArray[KEY_RESCALE_LOWER_Y]:
-                    o.setTextureSize(o.texture.get_width(), o.texture.get_height() - EDITOR_RESCALESPEED)
+                    o._setTextureSize(o.texture.get_width(), o.texture.get_height() - EDITOR_RESCALESPEED)
 
                 if inputArray[KEY_MOVEMENT_RIGHT]:
                     o.x += EDITOR_MOVESPEED
@@ -279,6 +278,31 @@ def importLevel(dropFileEvent):
         objectList[cleanid] = toimport
         objectList[cleanid].texture = obj.texture = pygame.image.fromstring(obj.texture, (obj.textureExportWidth, obj.textureExportHeight), 'RGBA')
 
+def createAttributeMenu():
+
+    objectList[freeGameObject()] = go.GameObject(
+        x = 10, y = GAMEWINDOW_HEIGHT - 130, z = 9, on = True,
+        fontContent = "[/] Value:", fontType = FONT_ID_DEBUG,
+        groupID = GROUPID_DEBUGMENU
+    )
+
+    objectList[freeGameObject()] = go.GameObject(
+        x = 10, y = GAMEWINDOW_HEIGHT - 160, z = 9, on = True,
+        fontContent = "[/] Attribute:", fontType = FONT_ID_DEBUG,
+        groupID = GROUPID_DEBUGMENU
+    )
+
+    gameObjectDict = go.GameObject.__dict__
+    gameObjectName = go.GameObject().__dir__()
+
+    for i in range(len(gameObjectName)):
+        if gameObjectName[i].startswith("_"): gameObjectName[i] = None
+    
+    try:
+        while gameObjectName.remove(None) == None:
+            pass
+    except ValueError:
+        pass
 
 def destroyAttributeMenu():
     for obj in objectList:
@@ -331,17 +355,7 @@ def switchEditorMode():
 
             currentEditorMode = 2
 
-            objectList[freeGameObject()] = go.GameObject(
-                x = 10, y = GAMEWINDOW_HEIGHT - 130, z = 9, on = True,
-                fontContent = "[/] Value:", fontType = FONT_ID_DEBUG,
-                groupID = GROUPID_DEBUGMENU
-            )
-
-            objectList[freeGameObject()] = go.GameObject(
-                x = 10, y = GAMEWINDOW_HEIGHT - 160, z = 9, on = True,
-                fontContent = "[/] Attribute:", fontType = FONT_ID_DEBUG,
-                groupID = GROUPID_DEBUGMENU
-            )
+            createAttributeMenu()
 
     elif not inputArray[KEY_SELECT_ATTRIBUTE_EDITOR] and attributeEditorFlag:
         attributeEditorFlag = False
