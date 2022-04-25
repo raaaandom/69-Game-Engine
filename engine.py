@@ -431,12 +431,55 @@ def scrollAttributes():
             currentAttributeValuePointer.set(GAMEOBJECT_DICT.get(GAMEOBJECT_ATTRIBUTES[scrollCursor]))
     elif not inputArray[KEY_SCROLL_DOWN] and scrollDownFlag:
         scrollDownFlag = False
+
+global attributeField
+lastAttributeFieldInput = 0
+attributeField = []
+
+def editAttributes(): #BUG YEAH BUGS BUG BUGS BUGS EVERYWHERE HERE
+    global lastAttributeFieldInput
+    global attributeField
+    tempFlag = False
+    for obj in objectList:
+        if obj.levelEditorSelected:
+            tempFlag = True
+    if not tempFlag:
+        return
+
+    for i in range(len(inputArray)):
+        if inputArray[i]:
+
+            if lastAttributeFieldInput == i:
+                lastAttributeFieldInput = i
+                continue
+            else:
+                lastAttributeFieldInput = i
+                attributeField.append(chr(i))
     
+    if inputArray[pygame.K_BACKSPACE]:
+        attributeField.pop(len(attributeField) - 1)
+
+    if inputArray[pygame.K_RETURN]:
+        for obj in objectList:
+            if obj.levelEditorSelected:
+
+                attributeField = attributeField.__str__().replace("[", "")
+                attributeField = attributeField.replace("]", "")
+                attributeField = attributeField.replace(",", "")
+                attributeField = attributeField.replace("\'", "")
+                attributeField = attributeField.replace("\\r", "")
+                attributeField = attributeField.replace(" ", "")
+
+                obj.__setattr__(GAMEOBJECT_ATTRIBUTES[scrollCursor], int(attributeField))
+
+                attributeField = []
+
 #Level editor (debug menu)
 def levelEditor():
 
     exportLevel()
     switchEditorMode()
+    editAttributes()
 
     if currentEditorMode == 2:
         selectInEditor()
