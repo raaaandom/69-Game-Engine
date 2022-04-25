@@ -44,6 +44,8 @@ KEY_RESCALE_HIGHER_Y = pygame.K_UP
 KEY_EXPORT_LEVEL = pygame.K_F11
 KEY_SELECT_PRESET_EDITOR = pygame.K_1
 KEY_SELECT_ATTRIBUTE_EDITOR = pygame.K_2
+KEY_SCROLL_UP = pygame.K_UP
+KEY_SCROLL_DOWN = pygame.K_DOWN
 
 GROUPID_DEBUGMENU = 1
 
@@ -82,6 +84,10 @@ gameWindow = pygame.display.set_mode(GAMEWINDOW_SIZE)
 #OBJ Attributes
 GAMEOBJECT_DICT = go.GameObject.__dict__
 GAMEOBJECT_ATTRIBUTES = go.GameObject().__dir__()
+
+scrollCursor = 0
+scrollUpFlag = False
+scrollDownFlag = False
 
 for i in range(len(GAMEOBJECT_ATTRIBUTES)):
     if GAMEOBJECT_ATTRIBUTES[i].startswith("_"): GAMEOBJECT_ATTRIBUTES[i] = None
@@ -196,6 +202,7 @@ editorSelectFlag = False
 
 #function which selects things
 def selectInEditor():
+
     global editorSelectFlag
     mouseinput = pygame.mouse.get_pressed()
 
@@ -211,7 +218,13 @@ def selectInEditor():
         if target.levelEditorSelected:
             target.levelEditorSelected = False
         else:
+
+            for obj in objectList:
+                if obj.levelEditorSelected:
+                    return
+
             target.levelEditorSelected = True
+            currentAttributeNamePointer.set(GAMEOBJECT_ATTRIBUTES[scrollCursor])
 
     elif not mouseinput[0] and editorSelectFlag:
         editorSelectFlag = False
@@ -293,17 +306,24 @@ def importLevel(dropFileEvent):
 
 def createAttributeMenu():
 
-    currentAttributePointer = sneUtils.Pointer(0)
+    global currentAttributeNamePointer
+    global currentAttributeValuePointer
+    global scrollCursor
+
+    scrollCursor = 0
+
+    currentAttributeNamePointer = sneUtils.Pointer("Select an Object")
+    currentAttributeValuePointer = sneUtils.Pointer("Select an Object")
 
     objectList[freeGameObject()] = go.GameObject(
         x = 10, y = GAMEWINDOW_HEIGHT - 130, z = 9, on = True,
-        fontContent = "[/] Value:", fontType = FONT_ID_DEBUG,
+        fontContent = "[/] Value: ^value", fontType = FONT_ID_DEBUG, fontVariables = [["^value", currentAttributeValuePointer]],
         groupID = GROUPID_DEBUGMENU
     )
 
     objectList[freeGameObject()] = go.GameObject(
         x = 10, y = GAMEWINDOW_HEIGHT - 160, z = 9, on = True,
-        fontContent = "[/] Attribute: ^attribute", fontType = FONT_ID_DEBUG, fontVariables = [["^attribute", currentAttributePointer]],
+        fontContent = "[/] Attribute: ^attribute", fontType = FONT_ID_DEBUG, fontVariables = [["^attribute", currentAttributeNamePointer]],
         groupID = GROUPID_DEBUGMENU
     )
 
@@ -320,6 +340,10 @@ def switchEditorMode():
     global presetEditorFlag
     global attributeEditorFlag
     global currentEditorMode
+
+    for obj in objectList:
+        if obj.levelEditorSelected:
+            return
 
     if inputArray[KEY_SELECT_PRESET_EDITOR] and not presetEditorFlag:
         presetEditorFlag = True
@@ -377,6 +401,37 @@ def switchEditorMode():
                     else:
                         o.fontColor = (255,255,255)
 
+def scrollAttributes():
+    global scrollCursor
+    global scrollUpFlag
+    global scrollDownFlag
+
+    if inputArray[KEY_SCROLL_UP] and not scrollUpFlag:
+        scrollUpFlag = True
+        if scrollCursor + 1 < len(GAMEOBJECT_ATTRIBUTES):
+            scrollCursor += 1
+            currentAttributeNamePointer.set(GAMEOBJECT_ATTRIBUTES[scrollCursor])
+            currentAttributeValuePointer.set(GAMEOBJECT_DICT.get(GAMEOBJECT_ATTRIBUTES[scrollCursor]))
+        else:
+            scrollCursor = 0
+            currentAttributeNamePointer.set(GAMEOBJECT_ATTRIBUTES[scrollCursor])
+            currentAttributeValuePointer.set(GAMEOBJECT_DICT.get(GAMEOBJECT_ATTRIBUTES[scrollCursor]))
+    elif not inputArray[KEY_SCROLL_UP] and scrollUpFlag:
+        scrollUpFlag = False
+
+    if inputArray[KEY_SCROLL_DOWN] and not scrollDownFlag:
+        scrollDownFlag = True
+        if scrollCursor - 1 >= 0:
+            scrollCursor -= 1
+            currentAttributeNamePointer.set(GAMEOBJECT_ATTRIBUTES[scrollCursor])
+            currentAttributeValuePointer.set(GAMEOBJECT_DICT.get(GAMEOBJECT_ATTRIBUTES[scrollCursor]))
+        else:
+            scrollCursor = len(GAMEOBJECT_ATTRIBUTES) - 1
+            currentAttributeNamePointer.set(GAMEOBJECT_ATTRIBUTES[scrollCursor])
+            currentAttributeValuePointer.set(GAMEOBJECT_DICT.get(GAMEOBJECT_ATTRIBUTES[scrollCursor]))
+    elif not inputArray[KEY_SCROLL_DOWN] and scrollDownFlag:
+        scrollDownFlag = False
+    
 #Level editor (debug menu)
 def levelEditor():
 
@@ -385,7 +440,16 @@ def levelEditor():
 
     if currentEditorMode == 2:
         selectInEditor()
-        quickEditSelected()
+        scrollAttributes()
+        updateValuesInAttributesMenu()
+
+def updateValuesInAttributesMenu():
+    global scrollCursor
+    for obj in objectList:
+        if obj.levelEditorSelected:
+            tempDict = obj.__dict__
+            currentAttributeValuePointer.set(tempDict.get(GAMEOBJECT_ATTRIBUTES[scrollCursor]))
+            break
 
 #Process animations
 def animateAnimated():
